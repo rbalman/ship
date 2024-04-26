@@ -37,7 +37,7 @@ function ship_run() {
   cgcreate -g cpu,memory,pids:ship-${CONTAINER_ID}
   cgexec -g 'cpu,memory,pids:ship-'${CONTAINER_ID} \
     unshare --pid --mount --net --ipc --time --cgroup --uts --fork \
-    chroot ${CONTAINER_ROOT}/ /bin/sh -c "mount -t proc proc /proc && $CMD" 2>&1 | tee ${SHIP_LOGS}/${CONTAINER_ID}/${CONTAINER_ID}.log || true
+    chroot ${CONTAINER_ROOT}/ /bin/sh -c "mount -t proc proc /proc && $CMD" #2>&1 | tee ${SHIP_LOGS}/${CONTAINER_ID}/${CONTAINER_ID}.log || true
 }
 
 function ship_exec() {
@@ -75,15 +75,15 @@ function ship_ps() {
   fi
 }
 
-function ship_logs() {
-  CONTAINER_ID=${1}
-  if [ -z $CONTAINER_ID ]
-  then
-    echo "please provide the name of the container"
-    exit 1
-  fi
-  tail -f ${SHIP_LOGS}/${CONTAINER_ID}/${CONTAINER_ID}.log
-}
+# function ship_logs() {
+#   CONTAINER_ID=${1}
+#   if [ -z $CONTAINER_ID ]
+#   then
+#     echo "please provide the name of the container"
+#     exit 1
+#   fi
+#   tail -f ${SHIP_LOGS}/${CONTAINER_ID}/${CONTAINER_ID}.log
+# }
 
 function ship_rm() {
   CONTAINER_ID=${1}
@@ -117,11 +117,10 @@ function ship_help() {
   echo "  run <root_fs_path> [<command>]    Run a new container"
   echo "  exec <container_id> <command>     Execute a command inside a running container"
   echo "  rm <container_id>                 Remove a container"
-  echo "  logs <container_id>               tail logs"
   echo "  ps                                List all running containers"
 }
 
 case "$1" in
-  "run" | "exec" | "rm" | "ps" | "logs") ship_"$1" "${@:2}" ;;
+  "run" | "exec" | "rm" | "ps") ship_"$1" "${@:2}" ;;
   *) ship_help ;;
 esac
