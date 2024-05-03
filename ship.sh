@@ -7,13 +7,12 @@ DEFAULT_SHELL=/bin/bash
 SHIP_LOGS=/var/log/ship
 SHIP_FS=/var/lib/ship
 
-check_root()
-{
-    if [ $( id -u ) != 0 ]
-    then
-        echo "ERROR: Root access is required for this action."
-        exit
-    fi
+check_root(){
+  if [ $( id -u ) != 0 ]
+  then
+    echo "ERROR: Root access is required for this action."
+      exit
+  fi
 }
 
 function ship_run() {
@@ -51,6 +50,7 @@ function ship_run() {
 }
 
 function ship_exec() {
+  check_root
   CONTAINER_ID=${1}
   if [ -z $CONTAINER_ID ]
   then
