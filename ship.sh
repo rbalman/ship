@@ -96,7 +96,7 @@ function ship_ps() {
 # }
 
 function ship_rm() {
-    check_root
+  check_root
   CONTAINER_ID=${1}
   if [ -z $CONTAINER_ID ]
   then
