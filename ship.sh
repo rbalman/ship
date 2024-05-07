@@ -7,7 +7,16 @@ DEFAULT_SHELL=/bin/bash
 SHIP_LOGS=/var/log/ship
 SHIP_FS=/var/lib/ship
 
+check_root(){
+  if [ $( id -u ) != 0 ]
+  then
+    echo "ERROR: Root access is required for this action."
+      exit
+  fi
+}
+
 function ship_run() {
+  check_root
   ROOT_FS=${1}
   shift 1
   CMD=${@:-${DEFAULT_SHELL}}
@@ -41,6 +50,7 @@ function ship_run() {
 }
 
 function ship_exec() {
+  check_root
   CONTAINER_ID=${1}
   if [ -z $CONTAINER_ID ]
   then
@@ -52,13 +62,13 @@ function ship_exec() {
   pid=$(pgrep -P ${ppid} 2> /dev/null)
 
   # echo "Parent Pid: ${ppid} Child pid: ${pid}"
-  
+
   if [ -z $pid ]
   then
     echo "no container with the give name found."
     exit 0
   fi
-  
+
   nsenter --pid --mount --uts --net --target ${pid} chroot ${SHIP_FS}/${CONTAINER_ID}/root "${@:2}"
 }
 
@@ -86,6 +96,7 @@ function ship_ps() {
 # }
 
 function ship_rm() {
+  check_root
   CONTAINER_ID=${1}
   if [ -z $CONTAINER_ID ]
   then
@@ -93,7 +104,7 @@ function ship_rm() {
     exit 1
   fi
 
-  ppid=$(ps o pid,cmd | grep -E "^\ *[0-9]+ unshare.*${CONTAINER_ID}" | awk '{print $1}')
+  ppid=$(ps o pid,cmd | grep -E "^ *[0-9]+ unshare.*${CONTAINER_ID}" | awk '{print $1}')
   pids=$(pgrep -P ${ppid} 2> /dev/null)
 
   # echo "Parent Pid: ${ppid} Child pid: ${pid}"
